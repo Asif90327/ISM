@@ -1,0 +1,93 @@
+{
+  "raid_tbl": {
+    "RAID 0": {
+      "usable_tb": 12.0,
+      "tolerance": 0,
+      "overhead_pct": 0.0
+    },
+    "RAID 1": {
+      "usable_tb": 6.0,
+      "tolerance": 1,
+      "overhead_pct": 50.0
+    },
+    "RAID 5": {
+      "usable_tb": 10.0,
+      "tolerance": 1,
+      "overhead_pct": 16.666666666666664
+    },
+    "RAID 6": {
+      "usable_tb": 8.0,
+      "tolerance": 2,
+      "overhead_pct": 33.333333333333336
+    },
+    "RAID 10": {
+      "usable_tb": 6.0,
+      "tolerance": 1,
+      "overhead_pct": 50.0
+    }
+  },
+  "raid5_rebuild_ok": [
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "raid5_double_failure_recovers": false,
+  "raid5_rebuild_ms": [
+    5.170899999939138,
+    6.41520000044693,
+    5.788899999970454,
+    5.346800000552321,
+    7.058599999254511
+  ],
+  "daily_change": [
+    0.033,
+    0.026,
+    0.046,
+    0.0229,
+    0.0414,
+    0.0346,
+    0.0223,
+    0.0403,
+    0.0215,
+    0.0373,
+    0.0228,
+    0.0236,
+    0.037,
+    0.0531
+  ],
+  "total_gb": {
+    "Full": 7000.0,
+    "Incremental": 1194.25,
+    "Differential": 1648.95
+  },
+  "avg_backup_min": {
+    "Full": 21.333333333333332,
+    "Incremental": 3.6396190476190484,
+    "Differential": 5.025371428571429
+  },
+  "restore": {
+    "Full": {
+      "sets": 1,
+      "gb": 500.0,
+      "minutes": 20.066666666666666
+    },
+    "Incremental": {
+      "sets": 7,
+      "gb": 597.65,
+      "minutes": 41.39978666666667
+    },
+    "Differential": {
+      "sets": 2,
+      "gb": 597.65,
+      "minutes": 26.399786666666667
+    }
+  },
+  "scen": {},
+  "rebuild_h": {
+    "RAID 10": 4.315127572016461,
+    "RAID 5": 7.76722962962963,
+    "RAID 6": 9.709037037037037
+  }
+}

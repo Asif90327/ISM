@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Storage Protection System — RAID & Backup Simulation | SRM IST</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Chart.js for live interactive visualizations with canvas fallback -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Banner / Institution Branding -->
+  <header class="header">
+    <div class="header-container">
+      <div class="brand-block">
+        <div class="srm-badge">
+          <div class="srm-logo-circle">SRM</div>
+          <div class="srm-text">
+            <span class="univ-title">SRM INSTITUTE OF SCIENCE &amp; TECHNOLOGY</span>
+            <span class="dept-title">Department of Computing Technologies | 21CSE359T Information Storage &amp; Management</span>
+          </div>
+        </div>
+      </div>
+      <div class="case-meta">
+        <span class="badge badge-accent">Interactive Case Study Demonstration</span>
+        <span class="badge badge-outline">300-Bed Hospital HIS (500 GB EMR)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="tag-row">
+          <span class="pill pill-blue">Course: 21CSE359T</span>
+          <span class="pill pill-teal">Storage Area Networks &amp; BC</span>
+          <span class="pill pill-amber">DPDP Act 2023 Compliant</span>
+        </div>
+        <h1>Design &amp; Simulation of a RAID-Based Backup and Recovery System for a Hospital Information System</h1>
+        <p class="hero-desc">
+          An interactive laboratory demonstrating two-layer storage protection: <strong>Layer 1 (Intelligent RAID Array)</strong> for high-availability hardware fault-tolerance and <strong>Layer 2 (Multi-Tiered Backup &amp; Recovery)</strong> to survive ransomware, database corruption, and site disasters within clinical SLAs.
+        </p>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div class="hero-kpis">
+        <div class="kpi-card">
+          <span class="kpi-label">Core EMR Database</span>
+          <span class="kpi-value">500 <small>GB</small></span>
+          <span class="kpi-sub">Growing 2% - 6% Daily</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Target RTO (SLA)</span>
+          <span class="kpi-value text-accent">&le; 1.0 <small>Hour</small></span>
+          <span class="kpi-sub">EMR DB Restoration Target</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Target RPO (SLA)</span>
+          <span class="kpi-value text-accent">&le; 24 <small>Hours</small></span>
+          <span class="kpi-sub">Maximum Allowable Loss</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Physical Disks Pool</span>
+          <span class="kpi-value">6 &times; 2 <small>TB</small></span>
+          <span class="kpi-sub">12 TB Raw Enterprise Pool</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="nav-tabs">
+    <div class="nav-container">
+      <button class="nav-btn active" data-tab="tab-raid">
+        <span class="nav-icon">💽</span>
+        <span>1. Interactive RAID Simulator</span>
+      </button>
+      <button class="nav-btn" data-tab="tab-xor">
+        <span class="nav-icon">⚡</span>
+        <span>2. Bitwise XOR Parity Lab</span>
+      </button>
+      <button class="nav-btn" data-tab="tab-backup">
+        <span class="nav-icon">🔄</span>
+        <span>3. 14-Day Backup &amp; Disaster Recovery</span>
+      </button>
+      <button class="nav-btn" data-tab="tab-arch">
+        <span class="nav-icon">🏥</span>
+        <span>4. Hospital Architecture &amp; BIA</span>
+      </button>
+      <button class="nav-btn" data-tab="tab-analytics">
+        <span class="nav-icon">📊</span>
+        <span>5. Comparative Results &amp; Charts</span>
+      </button>
+      <button class="nav-btn" data-tab="tab-viva">
+        <span class="nav-icon">🎓</span>
+        <span>6. Viva &amp; Oral Exam Assistant</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- TAB 1: INTERACTIVE RAID SIMULATOR -->
+    <section id="tab-raid" class="tab-pane active">
+      <div class="section-header">
+        <div>
+          <h2>Layer 1: Intelligent RAID Storage Array Simulator</h2>
+          <p class="section-subtitle">Evaluate usable capacity, disk failure tolerance, and reconstructive rebuild times on six 2 TB enterprise drives (12 TB Raw).</p>
+        </div>
+        <div class="control-group">
+          <label for="raid-level-select">Select RAID Level:</label>
+          <select id="raid-level-select" class="select-input">
+            <option value="RAID 5" selected>RAID 5 (Distributed Parity - Left Symmetric)</option>
+            <option value="RAID 6">RAID 6 (Dual Parity P+Q - High Reliability)</option>
+            <option value="RAID 10">RAID 10 (Striped Mirrors - Recommended for EMR)</option>
+            <option value="RAID 1">RAID 1 (Mirrored Pairs - 50% Overhead)</option>
+            <option value="RAID 0">RAID 0 (Pure Striping - ZERO Redundancy)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live RAID Summary Cards -->
+      <div class="grid-4 mb-4">
+        <div class="stat-card">
+          <div class="stat-title">Usable Capacity</div>
+          <div class="stat-num text-primary" id="raid-usable-cap">10.0 TB</div>
+          <div class="stat-desc" id="raid-cap-formula">(N - 1) &times; 2 TB = 5 &times; 2 TB</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Storage Overhead</div>
+          <div class="stat-num text-amber" id="raid-overhead">16.7%</div>
+          <div class="stat-desc" id="raid-overhead-desc">1 Disk dedicated to XOR parity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Guaranteed Fault Tolerance</div>
+          <div class="stat-num text-emerald" id="raid-tolerance">1 Disk</div>
+          <div class="stat-desc" id="raid-tolerance-desc">Survives any single drive crash</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Rebuild Time (under load)</div>
+          <div class="stat-num text-purple" id="raid-rebuild-time">7.8 Hours</div>
+          <div class="stat-desc" id="raid-rebuild-desc">At 50% available disk rebuild I/O</div>
+        </div>
+      </div>
+
+      <!-- RAID Array Chassis Simulation -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="status-indicator" id="array-status-led"></span>
+            <h3>Enterprise Storage Bay Chassis (6-Bay Tray)</h3>
+            <span class="badge" id="array-health-badge">HEALTHY / ONLINE</span>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline" id="btn-reset-disks">↺ Reset All Disks</button>
+            <button class="btn btn-sm btn-danger" id="btn-crash-random">⚡ Crash Random Disk</button>
+            <button class="btn btn-sm btn-primary" id="btn-rebuild-array" disabled>🛠️ Rebuild Array with Parity</button>
+          </div>
+        </div>
+
+        <p class="panel-helper-text">
+          Click any disk to physically fail it, or observe rebuild mechanics. In <strong>RAID 5</strong>, 1 failure is recoverable; a 2nd simultaneous failure destroys the array. In <strong>RAID 6</strong>, 2 simultaneous failures are safely tolerated!
+        </p>
+
+        <!-- 6 Disk Enclosure Graphic -->
+        <div class="disk-enclosure" id="disk-enclosure">
+          <!-- Disks 0 to 5 generated via JS -->
+        </div>
+
+        <!-- Stripe Layout Visualizer -->
+        <div class="mt-4">
+          <div class="flex-between mb-2">
+            <h4 class="font-600">Stripe &amp; Parity Distribution across Array (First 6 Stripes)</h4>
+            <span class="text-xs text-muted">Left-Symmetric rotating parity prevents dedicated parity disk bottleneck</span>
+          </div>
+          <div class="stripe-table-container">
+            <table class="stripe-table" id="stripe-table">
+              <thead>
+                <tr>
+                  <th>Stripe ID</th>
+                  <th>Disk 0</th>
+                  <th>Disk 1</th>
+                  <th>Disk 2</th>
+                  <th>Disk 3</th>
+                  <th>Disk 4</th>
+                  <th>Disk 5</th>
+                </tr>
+              </thead>
+              <tbody id="stripe-table-body">
+                <!-- Dynamically rendered rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Production Load & Rebuild Slider -->
+      <div class="panel mt-4">
+        <h3>Rebuild Exposure Window &amp; Production Load Analysis</h3>
+        <p class="text-sm text-muted mb-3">
+          During an array rebuild, clinical hospital read/write transactions compete with rebuild I/O. As disk size reaches 2 TB, long rebuild times dramatically heighten the probability of a fatal <strong>Unrecoverable Read Error (URE)</strong> or secondary drive collapse.
+        </p>
+        <div class="grid-2">
+          <div>
+            <label class="slider-label" for="slider-prod-load">
+              <span>Hospital Production I/O Load: <strong id="lbl-prod-load">50%</strong></span>
+              <span class="text-xs text-muted">(Lower load = faster rebuild; Higher load = slower rebuild)</span>
+            </label>
+            <input type="range" id="slider-prod-load" min="10" max="85" value="50" step="5" class="slider">
+
+            <label class="slider-label mt-3" for="slider-disk-bw">
+              <span>Sustained Disk Sequential Speed: <strong id="lbl-disk-bw">150 MB/s</strong></span>
+              <span class="text-xs text-muted">Enterprise 7200 RPM SAS / SATA HDD</span>
+            </label>
+            <input type="range" id="slider-disk-bw" min="100" max="250" value="150" step="10" class="slider">
+          </div>
+          <div class="calc-box">
+            <h4>Live Calculated Rebuild Duration (2 TB Disk)</h4>
+            <div class="calc-row">
+              <span>Available Rebuild Bandwidth:</span>
+              <span class="font-mono text-accent" id="calc-avail-bw">75.0 MB/s</span>
+            </div>
+            <div class="calc-row">
+              <span>Total Sectors / Data to Reconstruct:</span>
+              <span class="font-mono">2,097,152 MB (2.0 TB)</span>
+            </div>
+            <div class="calc-row highlight">
+              <span>Vulnerability Window (Rebuild Time):</span>
+              <span class="font-mono text-bold" id="calc-rebuild-hours">7.8 Hours</span>
+            </div>
+            <div class="calc-note" id="calc-ure-note">
+              ⚠️ In RAID 5, during these <strong>7.8 hours</strong>, the hospital has ZERO redundancy. An URE or second drive crash causes permanent clinical record loss!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: BITWISE XOR PARITY LAB -->
+    <section id="tab-xor" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Mathematical Verification: Bit-Exact XOR Parity Engine</h2>
+          <p class="section-subtitle">Direct demonstration of Algorithm 1 &amp; Algorithm 2 from Chapter 4. Experience how Exclusive-OR ($\oplus$) enables exact reconstruction without hardware duplication.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Interactive Data Input & Encoder -->
+        <div class="panel">
+          <h3>1. Data Striping &amp; Parity Generation</h3>
+          <p class="text-sm text-muted mb-3">
+            Enter sample clinical text or generate random hospital patient data chunks to distribute across 4 data drives and compute Parity on the 5th drive.
+          </p>
+          <div class="input-form">
+            <div class="form-row">
+              <label for="txt-d0">Disk 0 Data Block (D0):</label>
+              <input type="text" id="txt-d0" value="PATIENT_SMITH_A1" maxlength="16" class="mono-input">
+            </div>
+            <div class="form-row">
+              <label for="txt-d1">Disk 1 Data Block (D1):</label>
+              <input type="text" id="txt-d1" value="ICU_BED_302_O_POS" maxlength="16" class="mono-input">
+            </div>
+            <div class="form-row">
+              <label for="txt-d2">Disk 2 Data Block (D2):</label>
+              <input type="text" id="txt-d2" value="DOSAGE_50MG_IV_DR" maxlength="16" class="mono-input">
+            </div>
+            <div class="form-row">
+              <label for="txt-d3">Disk 3 Data Block (D3):</label>
+              <input type="text" id="txt-d3" value="VITALS_STABLE_98P" maxlength="16" class="mono-input">
+            </div>
+            <div class="btn-group mt-3">
+              <button class="btn btn-primary" id="btn-calc-xor">⚡ Compute XOR Parity (P)</button>
+              <button class="btn btn-outline" id="btn-rand-sample">🎲 Load Sample Medical Record</button>
+            </div>
+          </div>
+
+          <div class="xor-result-box mt-3">
+            <div class="text-xs text-muted mb-1">COMPUTED PARITY FORMULA:</div>
+            <div class="formula-box">P = D<sub>0</sub> &oplus; D<sub>1</sub> &oplus; D<sub>2</sub> &oplus; D<sub>3</sub></div>
+            <div class="flex-between mt-2">
+              <span>Parity Block (P) Hex:</span>
+              <span class="font-mono text-accent" id="lbl-parity-hex">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Failure Injection & Parity Rebuild -->
+        <div class="panel">
+          <h3>2. Disaster Emulation &amp; Bit-Exact Restoration</h3>
+          <p class="text-sm text-muted mb-3">
+            Select one drive to destroy. All bits on that drive become $0$. Then trigger the XOR reconstruction algorithm to prove bit-exact recovery.
+          </p>
+
+          <div class="target-drive-selector">
+            <label>Select Drive to Crash:</label>
+            <div class="radio-pills" id="xor-fail-selector">
+              <label class="radio-pill"><input type="radio" name="fail_drive" value="0"> Disk 0</label>
+              <label class="radio-pill"><input type="radio" name="fail_drive" value="1"> Disk 1</label>
+              <label class="radio-pill"><input type="radio" name="fail_drive" value="2" checked> Disk 2</label>
+              <label class="radio-pill"><input type="radio" name="fail_drive" value="3"> Disk 3</label>
+              <label class="radio-pill"><input type="radio" name="fail_drive" value="4"> Parity (P)</label>
+            </div>
+          </div>
+
+          <div class="btn-group mt-3 mb-3">
+            <button class="btn btn-danger" id="btn-exec-fail">💥 Destroy Selected Drive</button>
+            <button class="btn btn-emerald" id="btn-exec-restore" disabled>🛠️ Execute Parity Rebuild</button>
+          </div>
+
+          <!-- Bit-level proof inspection -->
+          <div class="proof-box" id="proof-container">
+            <div class="proof-step" id="proof-status-text">
+              Status: Array intact. Ready to simulate disk failure.
+            </div>
+            <div class="hex-diff-view" id="hex-diff-view">
+              <!-- Rendered byte breakdown -->
+            </div>
+          </div>
+
+          <!-- Double failure demonstration -->
+          <div class="mt-4 pt-3 border-t">
+            <h4 class="text-danger font-600">Double Drive Crash Stress Test (RAID 5 Limit)</h4>
+            <p class="text-xs text-muted mb-2">Simulate crashing Disk 0 AND Disk 1 simultaneously:</p>
+            <button class="btn btn-sm btn-outline-danger" id="btn-exec-double-fail">💥 Crash Two Drives at Once</button>
+            <div class="text-xs mt-2" id="double-fail-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Large Scale 256-Stripe Python Simulation Benchmark View -->
+      <div class="panel mt-4">
+        <h3>Full-Scale Python Simulation Benchmark (256 Stripes &times; 4 KiB = 1 MiB/Disk)</h3>
+        <p class="text-sm text-muted mb-3">
+          Real results produced by our Python benchmark (Appendix A / Chapter 5.1.1):
+        </p>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Test Case</th>
+                <th>Target Disk</th>
+                <th>Reconstruction Formula</th>
+                <th>SHA-256 Checksum Match</th>
+                <th>Rebuild Time</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Single Failure Test 1</td>
+                <td>Disk 0</td>
+                <td><code>D0 = D1 &oplus; D2 &oplus; D3 &oplus; D4 &oplus; P</code></td>
+                <td><span class="badge badge-success">100% BIT-EXACT MATCH</span></td>
+                <td>5.17 ms</td>
+                <td><strong class="text-emerald">PASSED &check;</strong></td>
+              </tr>
+              <tr>
+                <td>Single Failure Test 2</td>
+                <td>Disk 1</td>
+                <td><code>D1 = D0 &oplus; D2 &oplus; D3 &oplus; D4 &oplus; P</code></td>
+                <td><span class="badge badge-success">100% BIT-EXACT MATCH</span></td>
+                <td>6.42 ms</td>
+                <td><strong class="text-emerald">PASSED &check;</strong></td>
+              </tr>
+              <tr>
+                <td>Single Failure Test 3</td>
+                <td>Disk 2</td>
+                <td><code>D2 = D0 &oplus; D1 &oplus; D3 &oplus; D4 &oplus; P</code></td>
+                <td><span class="badge badge-success">100% BIT-EXACT MATCH</span></td>
+                <td>5.79 ms</td>
+                <td><strong class="text-emerald">PASSED &check;</strong></td>
+              </tr>
+              <tr>
+                <td>Single Failure Test 4</td>
+                <td>Disk 3</td>
+                <td><code>D3 = D0 &oplus; D1 &oplus; D2 &oplus; D4 &oplus; P</code></td>
+                <td><span class="badge badge-success">100% BIT-EXACT MATCH</span></td>
+                <td>5.35 ms</td>
+                <td><strong class="text-emerald">PASSED &check;</strong></td>
+              </tr>
+              <tr>
+                <td>Single Failure Test 5</td>
+                <td>Disk 4</td>
+                <td><code>D4 = D0 &oplus; D1 &oplus; D2 &oplus; D3 &oplus; P</code></td>
+                <td><span class="badge badge-success">100% BIT-EXACT MATCH</span></td>
+                <td>7.06 ms</td>
+                <td><strong class="text-emerald">PASSED &check;</strong></td>
+              </tr>
+              <tr class="table-danger-row">
+                <td>Simultaneous Double Failure</td>
+                <td>Disk 0 &amp; Disk 1</td>
+                <td><code>D0 &oplus; D1 = Acc (Two Unknowns)</code></td>
+                <td><span class="badge badge-danger">CORRUPT / MISMATCH</span></td>
+                <td>--</td>
+                <td><strong class="text-danger">UNRECOVERABLE &cross;</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 14-DAY BACKUP & DISASTER RECOVERY -->
+    <section id="tab-backup" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Layer 2: 14-Day Backup Cycle &amp; Disaster Recovery Simulator</h2>
+          <p class="section-subtitle">Evaluate storage consumption, daily backup windows, and restore times for a 500 GB Hospital EMR Database across Full, Incremental, and Differential backup policies.</p>
+        </div>
+        <div class="strategy-picker">
+          <span class="text-sm font-600">Active View:</span>
+          <button class="strat-btn active" data-strat="Differential">Differential (Recommended)</button>
+          <button class="strat-btn" data-strat="Incremental">Incremental</button>
+          <button class="strat-btn" data-strat="Full">Daily Full</button>
+          <button class="strat-btn" data-strat="Compare">Side-by-Side Compare</button>
+        </div>
+      </div>
+
+      <!-- Strategy Highlights Cards -->
+      <div class="grid-3 mb-4">
+        <div class="card card-highlight">
+          <div class="card-title text-muted">14-Day Total Storage Consumed</div>
+          <div class="card-metric text-primary" id="bk-stat-storage">1,649.0 GB</div>
+          <div class="card-sub text-emerald" id="bk-stat-savings">76% Storage Savings vs Daily Full</div>
+        </div>
+        <div class="card">
+          <div class="card-title text-muted">Average Daily Backup Time</div>
+          <div class="card-metric text-teal" id="bk-stat-duration">5.0 Minutes</div>
+          <div class="card-sub">Throughput: 400 MB/s to Disk Staging Pool</div>
+        </div>
+        <div class="card">
+          <div class="card-title text-muted">Recovery Time Objective (RTO) Check</div>
+          <div class="card-metric text-emerald" id="bk-stat-restore">26.4 Minutes</div>
+          <div class="card-sub"><span class="badge badge-success">&check; MEETS SLA (&lt; 60 MIN)</span></div>
+        </div>
+      </div>
+
+      <!-- Day 1-14 Timeline Visualizer -->
+      <div class="panel">
+        <div class="flex-between mb-3">
+          <div>
+            <h3>14-Day Backup Progression (Weekly Full on Days 1 &amp; 8)</h3>
+            <p class="text-xs text-muted">Click any day on the timeline or slider to inspect clinical data change rates and backup size.</p>
+          </div>
+          <div class="timeline-day-counter">
+            Selected Day: <strong class="text-accent text-lg" id="lbl-curr-day">Day 14</strong>
+          </div>
+        </div>
+
+        <!-- 14-Day Pills Interactive Scrubber -->
+        <div class="day-pills-bar" id="day-pills-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <input type="range" id="slider-day" min="1" max="14" value="14" class="slider mt-2">
+
+        <!-- Selected Day Deep Dive -->
+        <div class="day-detail-box mt-3" id="day-detail-box">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Emergency Disaster & Ransomware Restore Simulation -->
+      <div class="panel mt-4 border-danger">
+        <div class="panel-header">
+          <div>
+            <h3 class="text-danger">🚨 Hospital Disaster Recovery Drill: EMR Database Crash</h3>
+            <p class="text-sm text-muted">Simulate catastrophic volume corruption or ransomware encryption on Day 14. Mount required backup sets and measure recovery time against the 1-Hour RTO.</p>
+          </div>
+          <button class="btn btn-danger btn-pulse" id="btn-trigger-disaster">💥 Trigger EMR Disaster on Day 14</button>
+        </div>
+
+        <div id="disaster-drill-panel" class="drill-panel">
+          <div class="drill-initial">
+            <p class="text-muted">Click <strong>"Trigger EMR Disaster on Day 14"</strong> to execute the full disaster recovery drill.</p>
+          </div>
+
+          <div class="drill-active hidden" id="drill-active-content">
+            <div class="grid-3 mb-3">
+              <div class="drill-metric">
+                <span class="label">Disaster Event:</span>
+                <span class="val text-danger">EMR Data Store Corrupted</span>
+              </div>
+              <div class="drill-metric">
+                <span class="label">Hospital Recovery Target (RTO):</span>
+                <span class="val font-mono">60.0 Minutes</span>
+              </div>
+              <div class="drill-metric">
+                <span class="label">Max Allowable Loss (RPO):</span>
+                <span class="val font-mono">24.0 Hours</span>
+              </div>
+            </div>
+
+            <!-- Restore Path Comparison Interactive Box -->
+            <div class="restore-comparison-grid">
+              <!-- Daily Full -->
+              <div class="restore-card" id="card-restore-full">
+                <div class="restore-card-head">
+                  <h4>Daily Full Backup</h4>
+                  <span class="badge">1 Set Required</span>
+                </div>
+                <div class="restore-body">
+                  <div class="restore-step-chain">
+                    <span class="chain-item">Day 14 Full (500 GB)</span>
+                  </div>
+                  <div class="restore-stats">
+                    <div>Data to transfer: <strong>500.0 GB</strong></div>
+                    <div>Mount Overhead: <strong>3.0 min</strong> (1 set &times; 3m)</div>
+                    <div>Transfer Time: <strong>17.1 min</strong> (500 MB/s)</div>
+                    <div class="restore-total text-primary">Total Time: <strong>20.1 min</strong></div>
+                  </div>
+                  <div class="restore-sla-badge badge-success">&check; Passes RTO (33% of limit)</div>
+                  <div class="text-xs text-muted mt-2">&cross; Consumed massive 7,000 GB storage over 14 days</div>
+                </div>
+              </div>
+
+              <!-- Incremental -->
+              <div class="restore-card" id="card-restore-incremental">
+                <div class="restore-card-head">
+                  <h4>Full + Incremental</h4>
+                  <span class="badge badge-amber">7 Sets Required</span>
+                </div>
+                <div class="restore-body">
+                  <div class="restore-step-chain">
+                    <span class="chain-item">Day 8 Full</span> &rarr;
+                    <span class="chain-item">Day 9 Inc</span> &rarr;
+                    <span class="chain-item">Day 10 Inc</span> &rarr;
+                    <span class="chain-item">Day 11 Inc</span> &rarr;
+                    <span class="chain-item">Day 12 Inc</span> &rarr;
+                    <span class="chain-item">Day 13 Inc</span> &rarr;
+                    <span class="chain-item">Day 14 Inc</span>
+                  </div>
+                  <div class="restore-stats">
+                    <div>Data to transfer: <strong>597.7 GB</strong></div>
+                    <div>Mount Overhead: <strong>21.0 min</strong> (7 sets &times; 3m!)</div>
+                    <div>Transfer Time: <strong>20.4 min</strong> (500 MB/s)</div>
+                    <div class="restore-total text-amber">Total Time: <strong>41.4 min</strong></div>
+                  </div>
+                  <div class="restore-sla-badge badge-warning">⚠️ Passes RTO (69% of limit)</div>
+                  <div class="text-xs text-muted mt-2">&cross; Risky! If ANY 1 of the 7 incremental tapes is corrupt, entire restore fails!</div>
+                </div>
+              </div>
+
+              <!-- Differential (Recommended) -->
+              <div class="restore-card card-winner" id="card-restore-diff">
+                <div class="restore-card-head">
+                  <h4>Full + Differential <span class="badge badge-accent">RECOMMENDED</span></h4>
+                  <span class="badge badge-emerald">2 Sets Required</span>
+                </div>
+                <div class="restore-body">
+                  <div class="restore-step-chain">
+                    <span class="chain-item highlight">Day 8 Full (500 GB)</span> &rarr;
+                    <span class="chain-item highlight">Day 14 Differential (97.7 GB)</span>
+                  </div>
+                  <div class="restore-stats">
+                    <div>Data to transfer: <strong>597.7 GB</strong></div>
+                    <div>Mount Overhead: <strong>6.0 min</strong> (2 sets &times; 3m)</div>
+                    <div>Transfer Time: <strong>20.4 min</strong> (500 MB/s)</div>
+                    <div class="restore-total text-emerald">Total Time: <strong>26.4 min</strong></div>
+                  </div>
+                  <div class="restore-sla-badge badge-success">&check; Ideal: Passes RTO with 33.6 min safety margin!</div>
+                  <div class="text-xs text-muted mt-2">&check; Saves 76% storage while eliminating fragile multi-tape dependency!</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Gauge Visualizer -->
+            <div class="rto-gauge-container mt-4">
+              <h4>Recovery Time Objective (RTO) Ceiling Comparison</h4>
+              <div class="gauge-bar-wrapper">
+                <div class="gauge-target-line" style="left: 100%;">
+                  <span>1-Hour RTO Limit (60 min)</span>
+                </div>
+                <div class="gauge-fill gauge-full" style="width: 33.5%;">
+                  <span>Daily Full: 20.1 min</span>
+                </div>
+                <div class="gauge-fill gauge-diff" style="width: 44%;">
+                  <span>Full + Diff: 26.4 min (Optimal)</span>
+                </div>
+                <div class="gauge-fill gauge-incr" style="width: 69%;">
+                  <span>Full + Incr: 41.4 min</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: ARCHITECTURE & BIA -->
+    <section id="tab-arch" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Hospital Information System Architecture &amp; Business Impact Analysis</h2>
+          <p class="section-subtitle">Based on Section 3.2, 3.3, and Figure 3.1: Workload tiering, SLA boundaries, and complementary protection layers.</p>
+        </div>
+      </div>
+
+      <!-- Architecture Graphic Card -->
+      <div class="panel mb-4">
+        <h3>Proposed Two-Layer Hospital Storage Protection Architecture</h3>
+        <p class="text-sm text-muted mb-3">
+          Architecture overview: Primary intelligent storage array with tier-tailored RAID levels backed by automated hot spares, complemented by a local disk staging backup pool and offsite/cloud disaster recovery.
+        </p>
+
+        <!-- Interactive SVG Architecture Diagram -->
+        <div class="arch-diagram-wrapper">
+          <svg viewBox="0 0 1000 520" class="arch-svg">
+            <defs>
+              <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1F4E79"/>
+                <stop offset="100%" stop-color="#0f2b44"/>
+              </linearGradient>
+              <linearGradient id="grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#C55A11"/>
+                <stop offset="100%" stop-color="#803403"/>
+              </linearGradient>
+              <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#548235"/>
+                <stop offset="100%" stop-color="#2c4d16"/>
+              </linearGradient>
+              <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+                <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15"/>
+              </filter>
+              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 8 5 L 0 9 z" fill="#0284c7"/>
+              </marker>
+            </defs>
+
+            <!-- User Layer -->
+            <rect x="30" y="30" width="260" height="70" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" filter="url(#shadow)"/>
+            <text x="160" y="60" text-anchor="middle" font-weight="700" font-size="14" fill="#1e293b">Clinicians / Nurses / Staff</text>
+            <text x="160" y="80" text-anchor="middle" font-size="11" fill="#64748b">Wards, ICUs, Labs, Billing</text>
+
+            <!-- Arrow to Apps -->
+            <path d="M 290 65 L 340 65" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- App Layer -->
+            <rect x="350" y="30" width="300" height="70" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" filter="url(#shadow)"/>
+            <text x="500" y="60" text-anchor="middle" font-weight="700" font-size="14" fill="#1e293b">Hospital Applications</text>
+            <text x="500" y="80" text-anchor="middle" font-size="11" fill="#64748b">HIS | EMR | LIS | PACS | Billing</text>
+
+            <!-- Arrow to Primary Array -->
+            <path d="M 500 100 L 500 150" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="4"/>
+            <text x="515" y="130" font-size="11" font-weight="600" fill="#0284c7">Continuous I/O</text>
+
+            <!-- Protection Layer 1: Primary Storage Array -->
+            <rect x="30" y="150" width="620" height="230" rx="10" fill="#f0f7ff" stroke="#0284c7" stroke-width="2" stroke-dasharray="6" filter="url(#shadow)"/>
+            <text x="50" y="175" font-weight="800" font-size="13" fill="#1F4E79">PRIMARY STORAGE ARRAY (Protection Layer 1: RAID High-Availability)</text>
+
+            <!-- Tier 1 Box -->
+            <rect x="50" y="195" width="180" height="110" rx="6" fill="#ffffff" stroke="#1F4E79" stroke-width="1.5"/>
+            <text x="140" y="225" text-anchor="middle" font-weight="700" font-size="13" fill="#1F4E79">Tier 1: EMR Database</text>
+            <rect x="90" y="235" width="100" height="22" rx="4" fill="#1F4E79"/>
+            <text x="140" y="250" text-anchor="middle" font-weight="700" font-size="11" fill="#ffffff">RAID 10</text>
+            <text x="140" y="275" text-anchor="middle" font-size="10" fill="#64748b">500 GB | No Write Penalty</text>
+            <text x="140" y="292" text-anchor="middle" font-size="10" font-weight="600" fill="#059669">RTO: 1 hr | RPO: 24 hr</text>
+
+            <!-- Tier 2 Box -->
+            <rect x="250" y="195" width="180" height="110" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="340" y="225" text-anchor="middle" font-weight="700" font-size="13" fill="#0369a1">Tier 2: PACS Images</text>
+            <rect x="290" y="235" width="100" height="22" rx="4" fill="#0369a1"/>
+            <text x="340" y="250" text-anchor="middle" font-weight="700" font-size="11" fill="#ffffff">RAID 6</text>
+            <text x="340" y="275" text-anchor="middle" font-size="10" fill="#64748b">Dual Parity (Survives 2)</text>
+            <text x="340" y="292" text-anchor="middle" font-size="10" font-weight="600" fill="#0284c7">RTO: 4 hr | RPO: 24 hr</text>
+
+            <!-- Tier 3 Box -->
+            <rect x="450" y="195" width="180" height="110" rx="6" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+            <text x="540" y="225" text-anchor="middle" font-weight="700" font-size="13" fill="#475569">Tier 3: Admin &amp; Billing</text>
+            <rect x="490" y="235" width="100" height="22" rx="4" fill="#475569"/>
+            <text x="540" y="250" text-anchor="middle" font-weight="700" font-size="11" fill="#ffffff">RAID 6</text>
+            <text x="540" y="275" text-anchor="middle" font-size="10" fill="#64748b">High Capacity Efficiency</text>
+            <text x="540" y="292" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">RTO: 24 hr | RPO: 24 hr</text>
+
+            <!-- Hot Spares Bar -->
+            <rect x="50" y="320" width="580" height="42" rx="6" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1"/>
+            <text x="340" y="346" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">
+              ⚡ Hot Spares + Array Write Cache | Auto-Rebuild Trigger on Disk Degradation
+            </text>
+
+            <!-- Protection Layer 2: Backup/Recovery Subsystem -->
+            <rect x="710" y="150" width="260" height="230" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2" stroke-dasharray="6" filter="url(#shadow)"/>
+            <text x="725" y="175" font-weight="800" font-size="13" fill="#c2410c">PROTECTION LAYER 2: BACKUP</text>
+
+            <!-- Backup Server -->
+            <rect x="730" y="195" width="220" height="42" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+            <text x="840" y="221" text-anchor="middle" font-size="11" font-weight="700" fill="#c2410c">
+              Backup Engine: Weekly Full + Daily Diff
+            </text>
+
+            <!-- Local Fast Disk Pool -->
+            <rect x="730" y="250" width="220" height="45" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+            <text x="840" y="272" text-anchor="middle" font-size="11" font-weight="700" fill="#9a3412">Local Backup Pool</text>
+            <text x="840" y="288" text-anchor="middle" font-size="10" fill="#64748b">High-Speed Restores (26.4 min)</text>
+
+            <!-- Offsite Cloud DR -->
+            <rect x="730" y="310" width="220" height="52" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+            <text x="840" y="332" text-anchor="middle" font-size="11" font-weight="700" fill="#9a3412">Offsite / Cloud DR Copy</text>
+            <text x="840" y="350" text-anchor="middle" font-size="10" fill="#64748b">Air-Gapped Ransomware Protection</text>
+
+            <!-- Arrows between Array and Backup -->
+            <path d="M 650 220 L 710 220" stroke="#ea580c" stroke-width="2.5"/>
+            <text x="680" y="210" text-anchor="middle" font-size="10" font-weight="700" fill="#ea580c">Backup</text>
+
+            <path d="M 710 270 L 650 270" stroke="#16a34a" stroke-width="2.5"/>
+            <text x="680" y="290" text-anchor="middle" font-size="10" font-weight="700" fill="#16a34a">Restore</text>
+
+            <!-- Bottom Monitoring Bar -->
+            <rect x="30" y="410" width="940" height="50" rx="8" fill="#fefce8" stroke="#ca8a04" stroke-width="1.5" filter="url(#shadow)"/>
+            <text x="500" y="440" text-anchor="middle" font-size="12" font-weight="600" fill="#854d0e">
+              🛡️ Business Continuity Operations: SMART Disk Health Alerts | Nightly Job Reports | Quarterly Disaster Drills | DPDP Act Audit
+            </text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Workload Tiers Table & RTO/RPO Breakdown -->
+      <div class="grid-2 mb-4">
+        <div class="panel">
+          <h3>Table 3.1: Hospital Workload Tiers &amp; Service Levels</h3>
+          <table class="data-table mt-2">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Workload</th>
+                <th>Clinical Impact</th>
+                <th>RTO</th>
+                <th>RPO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Tier 1</strong></td>
+                <td>EMR / HIS Database (500 GB)</td>
+                <td>Critical patient-safety hazard; loss of medication / allergy charts</td>
+                <td><strong class="text-accent">1 Hour</strong></td>
+                <td>24 Hours</td>
+              </tr>
+              <tr>
+                <td><strong>Tier 2</strong></td>
+                <td>PACS Radiology Archive</td>
+                <td>Delayed diagnostics, ICU surgical imaging backlog</td>
+                <td><strong>4 Hours</strong></td>
+                <td>24 Hours</td>
+              </tr>
+              <tr>
+                <td><strong>Tier 3</strong></td>
+                <td>Hospital Admin &amp; Billing</td>
+                <td>Administrative/cashflow delay; zero patient danger</td>
+                <td><strong>24 Hours</strong></td>
+                <td>24 Hours</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RAID vs Backup Fundamental Law -->
+        <div class="panel">
+          <h3>Core Concept: Why RAID is NOT a Replacement for Backup</h3>
+          <p class="text-sm text-muted mb-2">
+            A common misconception in storage infrastructure is that RAID eliminates the need for backups. This table illustrates why both layers are indispensable:
+          </p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Failure Event</th>
+                <th>Protected by RAID?</th>
+                <th>Protected by Backup?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Single Physical Disk Crash</td>
+                <td><span class="badge badge-success">&check; YES (Array keeps running)</span></td>
+                <td>Unnecessary (Hardware survives)</td>
+              </tr>
+              <tr>
+                <td>Ransomware Encryption / Malware</td>
+                <td><span class="badge badge-danger">&cross; NO (Replicates bad data)</span></td>
+                <td><span class="badge badge-success">&check; YES (Restore clean snapshot)</span></td>
+              </tr>
+              <tr>
+                <td>Accidental Patient Record Deletion</td>
+                <td><span class="badge badge-danger">&cross; NO (Immediate parity write)</span></td>
+                <td><span class="badge badge-success">&check; YES (Rollback to yesterday)</span></td>
+              </tr>
+              <tr>
+                <td>Data Center Flood / Fire / Outage</td>
+                <td><span class="badge badge-danger">&cross; NO (All disks destroyed)</span></td>
+                <td><span class="badge badge-success">&check; YES (Offsite / Cloud DR)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: COMPARATIVE RESULTS & CHARTS -->
+    <section id="tab-analytics" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>Chapter 5: Quantitative Findings &amp; Published Research Charts</h2>
+          <p class="section-subtitle">Reproducing Table 5.1, Table 5.2, and Figures 5.1 through 5.4 directly from the case study experiment.</p>
+        </div>
+      </div>
+
+      <!-- Generated Charts Carousel / Grid -->
+      <div class="grid-2 mb-4">
+        <div class="panel text-center">
+          <h4>Figure 5.1: Usable Capacity &amp; Fault Tolerance (6 &times; 2 TB Disks)</h4>
+          <img src="fig_raid.png" alt="Figure 5.1 RAID Comparison" class="img-responsive mt-2">
+          <p class="text-xs text-muted mt-2">RAID 0 offers 12 TB (0% redundancy); RAID 6 offers 8 TB with 2-disk fault tolerance.</p>
+        </div>
+
+        <div class="panel text-center">
+          <h4>Figure 5.2: Modelled Rebuild Time under Hospital Production Load</h4>
+          <img src="fig_rebuild.png" alt="Figure 5.2 Rebuild Time" class="img-responsive mt-2">
+          <p class="text-xs text-muted mt-2">RAID 10 rebuilds fastest (4.3h) by direct mirroring; RAID 6 takes 9.7h due to dual parity XOR/GF operations.</p>
+        </div>
+
+        <div class="panel text-center">
+          <h4>Figure 5.3: Daily Backup Size over 14 Days (500 GB Database)</h4>
+          <img src="fig_backup_size.png" alt="Figure 5.3 Daily Backup Size" class="img-responsive mt-2">
+          <p class="text-xs text-muted mt-2">Incremental backup transfers only 10-25 GB/day; Differential slowly accumulates until weekly reset on Day 8.</p>
+        </div>
+
+        <div class="panel text-center">
+          <h4>Figure 5.4: 14-Day Storage Consumption vs Day-14 Restore Time</h4>
+          <img src="fig_backup_compare.png" alt="Figure 5.4 Storage vs Restore Time" class="img-responsive mt-2">
+          <p class="text-xs text-muted mt-2">Differential backup achieves the optimal trade-off: 76% storage savings and rapid 26.4 min recovery time.</p>
+        </div>
+      </div>
+
+      <!-- Comparative Data Tables from Report -->
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Table 5.1: RAID Levels on Six 2 TB Disks (12 TB Raw)</h3>
+          <table class="data-table mt-2">
+            <thead>
+              <tr>
+                <th>RAID Level</th>
+                <th>Usable (TB)</th>
+                <th>Overhead</th>
+                <th>Fault Tolerance</th>
+                <th>Rebuild Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>RAID 0</strong></td>
+                <td>12.0 TB</td>
+                <td>0%</td>
+                <td>0 Disks</td>
+                <td>Unrecoverable</td>
+              </tr>
+              <tr>
+                <td><strong>RAID 1</strong></td>
+                <td>6.0 TB</td>
+                <td>50%</td>
+                <td>1 Disk</td>
+                <td>Not modelled</td>
+              </tr>
+              <tr>
+                <td><strong>RAID 5</strong></td>
+                <td>10.0 TB</td>
+                <td>16.7%</td>
+                <td>1 Disk</td>
+                <td>7.8 Hours</td>
+              </tr>
+              <tr class="table-highlight">
+                <td><strong>RAID 6</strong></td>
+                <td>8.0 TB</td>
+                <td>33.3%</td>
+                <td>2 Disks</td>
+                <td>9.7 Hours</td>
+              </tr>
+              <tr class="table-highlight">
+                <td><strong>RAID 10</strong></td>
+                <td>6.0 TB</td>
+                <td>50.0%</td>
+                <td>1 Guaranteed</td>
+                <td>4.3 Hours</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3>Table 5.2: Backup Strategies over 14 Days (500 GB EMR DB)</h3>
+          <table class="data-table mt-2">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>Total Storage</th>
+                <th>Savings</th>
+                <th>Avg Backup</th>
+                <th>Restore Sets</th>
+                <th>Restore Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Daily Full</strong></td>
+                <td>7,000 GB</td>
+                <td>--</td>
+                <td>21.3 min</td>
+                <td>1 Set</td>
+                <td>20.1 min</td>
+              </tr>
+              <tr>
+                <td><strong>Full + Incremental</strong></td>
+                <td>1,194 GB</td>
+                <td>83%</td>
+                <td>3.6 min</td>
+                <td>7 Sets</td>
+                <td>41.4 min</td>
+              </tr>
+              <tr class="table-highlight">
+                <td><strong>Full + Differential</strong></td>
+                <td>1,649 GB</td>
+                <td>76%</td>
+                <td>5.0 min</td>
+                <td>2 Sets</td>
+                <td>26.4 min</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: VIVA & ORAL EXAM ASSISTANT -->
+    <section id="tab-viva" class="tab-pane">
+      <div class="section-header">
+        <div>
+          <h2>21CSE359T Course Viva &amp; Oral Exam Assistant</h2>
+          <p class="section-subtitle">Key theoretical explanations, mathematical justifications, and potential examiner questions with exact textbook answers.</p>
+        </div>
+      </div>
+
+      <div class="viva-accordion">
+
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <h4>Q1. Why does RAID 5 suffer from the "Small Write Penalty" (2 Reads + 2 Writes)?</h4>
+            <span class="acc-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <p>
+              When writing a block $D_{\text{new}}$ smaller than a full stripe, the RAID controller cannot calculate new parity without knowing all other data blocks. Instead of reading all $N-2$ other disks, it uses the differential parity equation:
+            </p>
+            <div class="formula-box">
+              P<sub>new</sub> = P<sub>old</sub> &oplus; D<sub>old</sub> &oplus; D<sub>new</sub>
+            </div>
+            <p>
+              This requires <strong>4 total I/O operations</strong>: (1) Read $D_{\text{old}}$, (2) Read $P_{\text{old}}$, (3) Write $D_{\text{new}}$, (4) Write $P_{\text{new}}$. This penalty severely throttles random transaction databases, which is why <strong>RAID 10</strong> was chosen for the EMR database.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <h4>Q2. Why is RAID 10 rebuild time (4.3h) faster than RAID 5 (7.8h) and RAID 6 (9.7h)?</h4>
+            <span class="acc-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <p>
+              In RAID 10, reconstruction of a failed disk is a <strong>pure 1-to-1 sequential disk copy</strong> from its mirrored partner. No parity calculations or reading from all other array disks are required. Consequently, 90% of available disk bandwidth is directed to copying.
+            </p>
+            <p>
+              In contrast, RAID 5 must read every sector of <em>every</em> surviving disk and compute XOR parity in memory before writing to the replacement disk. In a 300-bed hospital under production load, clinical I/O restricts available rebuild bandwidth to only 40%–50%.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <h4>Q3. What is an Unrecoverable Read Error (URE) and why does it make RAID 5 dangerous?</h4>
+            <span class="acc-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <p>
+              Consumer and standard enterprise SATA drives have an URE specification of 1 bit error per $10^{14}$ bits read ($~12.5\text{ TB}$). During a RAID 5 rebuild of a 2 TB disk across 5 disks, the array must read $4 \times 2\text{ TB} = 8\text{ TB}$ of data continuously. The statistical probability of hitting an unreadable sector during rebuild is significant. If an URE occurs in RAID 5 while degraded, <strong>the rebuild halts and the array is destroyed</strong>. RAID 6 solves this by maintaining two independent parity syndromes ($P$ and $Q$).
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <h4>Q4. What is the fundamental difference between RTO and RPO?</h4>
+            <span class="acc-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <ul>
+              <li><strong>RTO (Recovery Time Objective):</strong> The maximum acceptable duration of system downtime before clinical disaster ensues. For Tier 1 EMR, RTO is <strong>1 hour</strong>.</li>
+              <li><strong>RPO (Recovery Point Objective):</strong> The maximum allowable age of data that can be permanently lost when disaster strikes. With daily backups at midnight, RPO is <strong>24 hours</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <h4>Q5. Why did the hospital choose Full + Differential over Full + Incremental?</h4>
+            <span class="acc-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <p>
+              While Incremental backup used slightly less total storage (1,194 GB vs 1,649 GB), restoring Day 14 under Incremental required <strong>7 separate backup sets</strong> (the Day 8 Full + 6 daily increments), resulting in <strong>41.4 minutes</strong> of restore time due to catalog search and tape mount overheads (3 min per set).
+            </p>
+            <p>
+              Differential backup requires only <strong>2 sets</strong> (Day 8 Full + Day 14 Diff), restoring in <strong>26.4 minutes</strong> (a 36% faster restore), providing a huge 33.6-minute safety cushion under the 1-hour RTO SLA, and eliminating the vulnerability where a corruption in any intermediate day renders all subsequent backups unreadable.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header">
+            <h4>Q6. How does India's Digital Personal Data Protection (DPDP) Act, 2023 apply to this case?</h4>
+            <span class="acc-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <p>
+              As a Data Fiduciary processing sensitive personal and medical data of hospital patients, the hospital is legally mandated under Section 8 of the DPDP Act 2023 to protect data against unauthorized disclosure, loss, or destruction by implementing reasonable security safeguards. A resilient two-layer architecture (RAID + offsite backups + quarterly drills) provides documented evidence of compliance.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div>
+        <strong>21CSE359T – Information Storage and Management</strong> | Case Study Project
+        <div class="text-xs text-muted mt-1">Faculty of Engineering and Technology, School of Computing, SRM Institute of Science and Technology, Kattankulathur</div>
+      </div>
+      <div class="footer-right">
+        <span class="badge badge-outline">November 2026</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
